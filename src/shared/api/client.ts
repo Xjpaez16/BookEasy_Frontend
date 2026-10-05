@@ -18,7 +18,7 @@ export class ApiRequestError extends Error {
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: unknown;
-  signal?: AbortSignal;
+  signal?: AbortSignal | undefined;
 }
 
 /**
@@ -27,13 +27,19 @@ interface RequestOptions {
  * directly — they go through typed resource modules that use this client.
  */
 async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
-  const res = await fetch(`${env.apiBaseUrl}${path}`, {
+  const init: RequestInit = {
     method: opts.method ?? 'GET',
-    headers: opts.body ? { 'content-type': 'application/json' } : undefined,
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
     credentials: 'include',
-    signal: opts.signal,
-  });
+  };
+  if (opts.body !== undefined) {
+    init.headers = { 'content-type': 'application/json' };
+    init.body = JSON.stringify(opts.body);
+  }
+  if (opts.signal) {
+    init.signal = opts.signal;
+  }
+
+  const res = await fetch(`${env.apiBaseUrl}${path}`, init);
 
   if (!res.ok) {
     let body: ApiError = { code: 'UNKNOWN', message: res.statusText };
