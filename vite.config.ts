@@ -21,5 +21,13 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/shared/lib/test-setup.ts'],
+    server: {
+      deps: {
+        // zod 3.25 ships a dual CJS/ESM package whose "module" entry can
+        // resolve to an empty namespace under Vitest's transformer; inlining
+        // it forces a single, correct resolution.
+        inline: ['zod'],
+      },
+    },
   },
 });
