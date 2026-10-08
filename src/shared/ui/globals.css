@@ -2,32 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Theme tokens translated from .kiro/skills/DESIGN-airbnb.md.
+ * Single brand voltage: Rausch (#ff385c). Pure-white canvas, near-black ink
+ * (#222), hairline (#ddd) borders, soft radii. HSL triplets so Tailwind's
+ * `hsl(var(--x))` tokens resolve. Airbnb has no public dark mode; the .dark
+ * block mirrors the scaffold contract but is unused by the auth surfaces.
+ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --primary: 222 47% 11%;
-    --primary-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
+    /* Surfaces */
+    --background: 0 0% 100%; /* canvas #ffffff */
+    --foreground: 0 0% 13%; /* ink #222222 */
+    --card: 0 0% 100%; /* surface-card #ffffff */
+    --card-foreground: 0 0% 13%;
+    --surface-soft: 0 0% 97%; /* #f7f7f7 */
+    --surface-strong: 0 0% 95%; /* #f2f2f2 */
+
+    /* Text */
+    --body: 0 0% 25%; /* body #3f3f3f */
+    --muted: 0 0% 97%; /* muted fill */
+    --muted-foreground: 0 0% 42%; /* muted #6a6a6a */
+
+    /* Brand — Rausch */
+    --primary: 347 100% 61%; /* #ff385c */
+    --primary-foreground: 0 0% 100%; /* on-primary white */
+    --primary-active: 342 89% 46%; /* #e00b41 */
+    --primary-disabled: 348 100% 91%; /* #ffd1da */
+
+    /* Borders */
+    --border: 0 0% 87%; /* hairline #dddddd */
+    --border-soft: 0 0% 92%; /* hairline-soft #ebebeb */
+    --border-strong: 0 0% 76%; /* border-strong #c1c1c1 */
+
+    /* Semantic */
+    --error: 14 60% 42%; /* #c13515 */
+    --error-hover: 14 76% 36%; /* #b32505 */
+
+    /* Radius — soft shape language */
+    --radius: 0.5rem; /* rounded.sm 8px — default button/input */
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 13%;
-    --card-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222 47% 11%;
-    --border: 217 33% 20%;
+    --background: 0 0% 13%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 98%;
+    --surface-soft: 0 0% 18%;
+    --surface-strong: 0 0% 20%;
+    --body: 0 0% 85%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 65%;
+    --primary: 347 100% 61%;
+    --primary-foreground: 0 0% 100%;
+    --primary-active: 342 89% 46%;
+    --primary-disabled: 348 40% 40%;
+    --border: 0 0% 25%;
+    --border-soft: 0 0% 22%;
+    --border-strong: 0 0% 35%;
+    --error: 14 70% 60%;
+    --error-hover: 14 76% 66%;
+  }
+
+  * {
+    @apply border-border;
   }
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', Circular, -apple-system, system-ui, Roboto,
+      'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
