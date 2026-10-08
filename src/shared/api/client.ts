@@ -1,5 +1,6 @@
 import { env } from '../config/env';
 import { tokenStore } from './token-store';
+import { businessStore } from './business-store';
 
 export interface ApiError {
   code: string;
@@ -38,6 +39,8 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
   const headers: Record<string, string> = {};
   const token = tokenStore.get();
   if (token) headers.authorization = `Bearer ${token}`;
+  const businessId = businessStore.get();
+  if (businessId) headers['x-business-id'] = businessId;
   if (opts.body !== undefined) {
     headers['content-type'] = 'application/json';
     init.body = JSON.stringify(opts.body);
