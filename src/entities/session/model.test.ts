@@ -5,7 +5,8 @@ import {
   forgotPasswordInputSchema,
   resetPasswordInputSchema,
   userSchema,
-  authSessionSchema,
+  loginResponseSchema,
+  registerResponseSchema,
 } from './model';
 
 describe('login schema', () => {
@@ -92,15 +93,24 @@ describe('server response schemas', () => {
     expect(r.success).toBe(true);
   });
 
-  it('parses an auth session', () => {
-    const r = authSessionSchema.safeParse({
+  it('parses a login response (accessToken + userId, no user object)', () => {
+    const r = loginResponseSchema.safeParse({
       accessToken: 'jwt.token.here',
-      user: {
-        id: '11111111-1111-1111-1111-111111111111',
-        email: 'a@b.com',
-        fullName: 'A B',
-        emailVerified: true,
-      },
+      userId: '11111111-1111-1111-1111-111111111111',
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it('rejects a login response missing the access token', () => {
+    const r = loginResponseSchema.safeParse({
+      userId: '11111111-1111-1111-1111-111111111111',
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it('parses a register response (userId only)', () => {
+    const r = registerResponseSchema.safeParse({
+      userId: '11111111-1111-1111-1111-111111111111',
     });
     expect(r.success).toBe(true);
   });

@@ -9,13 +9,22 @@ export const userSchema = z.object({
 });
 export type User = z.infer<typeof userSchema>;
 
-/** Login/refresh success payload. The refresh token lives in an HttpOnly
- *  cookie set by the backend — never in the JSON body, never in localStorage. */
-export const authSessionSchema = z.object({
+/**
+ * Backend auth response shapes (verified against be-Backend auth-router).
+ * The login/refresh body carries ONLY the access token + a userId — the user
+ * profile is hydrated separately via `GET /auth/me`. The refresh token lives in
+ * an HttpOnly cookie — never in the JSON body, never in localStorage.
+ */
+export const loginResponseSchema = z.object({
   accessToken: z.string().min(1),
-  user: userSchema,
+  userId: z.string().uuid(),
 });
-export type AuthSession = z.infer<typeof authSessionSchema>;
+export type LoginResponse = z.infer<typeof loginResponseSchema>;
+
+export const registerResponseSchema = z.object({
+  userId: z.string().uuid(),
+});
+export type RegisterResponse = z.infer<typeof registerResponseSchema>;
 
 /* ---- Form input schemas (shared by RHF resolvers and the API layer) ---- */
 
