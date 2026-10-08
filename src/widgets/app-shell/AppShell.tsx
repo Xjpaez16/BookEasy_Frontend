@@ -38,6 +38,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             Panel
           </Link>
           <Link
+            to="/settings/staff"
+            className="text-base font-semibold text-muted-foreground hover:text-foreground"
+          >
+            Equipo
+          </Link>
+          <Link
             to="/settings/business"
             className="text-base font-semibold text-muted-foreground hover:text-foreground"
           >
