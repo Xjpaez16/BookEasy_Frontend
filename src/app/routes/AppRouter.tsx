@@ -5,7 +5,10 @@ import { RegisterPage } from '../../pages/auth/RegisterPage';
 import { ForgotPasswordPage } from '../../pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '../../pages/auth/ResetPasswordPage';
 import { VerifyEmailPage } from '../../pages/auth/VerifyEmailPage';
-import { RequireAuth } from '../../features/auth/RequireAuth';
+import { OnboardingPage } from '../../pages/onboarding/OnboardingPage';
+import { BusinessSettingsPage } from '../../pages/settings/BusinessSettingsPage';
+import { RequireToken } from '../../features/auth/RequireToken';
+import { RequireBusiness } from '../../features/business/RequireBusiness';
 
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -17,13 +20,31 @@ const router = createBrowserRouter([
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/verify-email', element: <VerifyEmailPage /> },
 
-  // Protected app routes.
+  // Authenticated but pre-business: create a business.
+  {
+    path: '/onboarding',
+    element: (
+      <RequireToken>
+        <OnboardingPage />
+      </RequireToken>
+    ),
+  },
+
+  // Protected app routes — require an active business (which also proves auth).
   {
     path: '/dashboard',
     element: (
-      <RequireAuth>
+      <RequireBusiness>
         <DashboardPage />
-      </RequireAuth>
+      </RequireBusiness>
+    ),
+  },
+  {
+    path: '/settings/business',
+    element: (
+      <RequireBusiness>
+        <BusinessSettingsPage />
+      </RequireBusiness>
     ),
   },
 

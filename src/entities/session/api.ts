@@ -5,6 +5,7 @@ import {
 } from '@tanstack/react-query';
 import { apiClient } from '../../shared/api/client';
 import { tokenStore } from '../../shared/api/token-store';
+import { businessStore } from '../../shared/api/business-store';
 import {
   authSessionSchema,
   userSchema,
@@ -90,6 +91,7 @@ export function useLogout() {
     mutationFn: sessionApi.logout,
     onSettled: () => {
       tokenStore.clear();
+      businessStore.clear();
       qc.setQueryData(sessionKeys.me, null);
       void qc.invalidateQueries();
     },
