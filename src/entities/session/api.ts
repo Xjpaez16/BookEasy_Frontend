@@ -7,9 +7,9 @@ import { apiClient } from '../../shared/api/client';
 import { tokenStore } from '../../shared/api/token-store';
 import { businessStore } from '../../shared/api/business-store';
 import {
-  authSessionSchema,
+  loginResponseSchema,
+  registerResponseSchema,
   userSchema,
-  type AuthSession,
   type ForgotPasswordInput,
   type LoginInput,
   type RegisterInput,
@@ -17,32 +17,40 @@ import {
   type User,
 } from './model';
 
-/** The only place that knows the auth URL shapes. */
+/** The only place that knows the auth URL shapes. Routes and payloads are
+ *  aligned to be-Backend (`/api/v1/auth/*`); the base URL already carries the
+ *  `/api/v1` prefix, so paths here are relative to `/auth`. */
 const sessionApi = {
   me: async (): Promise<User> => {
     const raw = await apiClient.get<unknown>('/auth/me');
     return userSchema.parse(raw);
   },
-  login: async (input: LoginInput): Promise<AuthSession> => {
+  /** Login returns only `{ accessToken, userId }`; the caller hydrates the
+   *  profile via `me()` after storing the token. */
+  login: async (input: LoginInput): Promise<string> => {
     const raw = await apiClient.post<unknown>('/auth/login', input);
-    return authSessionSchema.parse(raw);
+    return loginResponseSchema.parse(raw).accessToken;
   },
-  register: async (input: RegisterInput): Promise<AuthSession> => {
+  /** Register returns only `{ userId }` — no token. The caller logs in
+   *  afterwards to obtain a session. */
+  register: async (input: RegisterInput): Promise<void> => {
     const { confirmPassword: _c, ...body } = input;
     void _c;
     const raw = await apiClient.post<unknown>('/auth/register', body);
-    return authSessionSchema.parse(raw);
+    registerResponseSchema.parse(raw);
   },
   logout: async (): Promise<void> => {
     await apiClient.post<unknown>('/auth/logout');
   },
   forgotPassword: async (input: ForgotPasswordInput): Promise<void> => {
-    await apiClient.post<unknown>('/auth/forgot-password', input);
+    await apiClient.post<unknown>('/auth/password/forgot', input);
   },
   resetPassword: async (input: ResetPasswordInput): Promise<void> => {
-    const { confirmPassword: _c, ...body } = input;
-    void _c;
-    await apiClient.post<unknown>('/auth/reset-password', body);
+    // Backend expects `{ token, newPassword }`.
+    await apiClient.post<unknown>('/auth/password/reset', {
+      token: input.token,
+      newPassword: input.password,
+    });
   },
   verifyEmail: async (token: string): Promise<void> => {
     await apiClient.post<unknown>('/auth/verify-email', { token });
@@ -66,10 +74,14 @@ export function useSession() {
 export function useLogin() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: sessionApi.login,
-    onSuccess: (data) => {
-      tokenStore.set(data.accessToken);
-      qc.setQueryData(sessionKeys.me, data.user);
+    mutationFn: async (input: LoginInput): Promise<User> => {
+      const accessToken = await sessionApi.login(input);
+      tokenStore.set(accessToken);
+      // The login body has no user; hydrate the profile from /auth/me.
+      return sessionApi.me();
+    },
+    onSuccess: (user) => {
+      qc.setQueryData(sessionKeys.me, user);
     },
   });
 }
@@ -77,10 +89,19 @@ export function useLogin() {
 export function useRegister() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: sessionApi.register,
-    onSuccess: (data) => {
-      tokenStore.set(data.accessToken);
-      qc.setQueryData(sessionKeys.me, data.user);
+    mutationFn: async (input: RegisterInput): Promise<User> => {
+      // Register creates the account (returns only userId), then we log in with
+      // the same credentials to obtain a session and hydrate the profile.
+      await sessionApi.register(input);
+      const accessToken = await sessionApi.login({
+        email: input.email,
+        password: input.password,
+      });
+      tokenStore.set(accessToken);
+      return sessionApi.me();
+    },
+    onSuccess: (user) => {
+      qc.setQueryData(sessionKeys.me, user);
     },
   });
 }
