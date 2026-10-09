@@ -8,6 +8,7 @@ import { cn } from '../../shared/lib/cn';
 
 const navItems = [
   { to: '/dashboard', label: 'Panel' },
+  { to: '/calendar', label: 'Agenda' },
   { to: '/catalog/services', label: 'Servicios' },
   { to: '/catalog/customers', label: 'Clientes' },
   { to: '/settings/staff', label: 'Equipo' },
