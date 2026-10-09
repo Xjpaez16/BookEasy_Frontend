@@ -8,6 +8,8 @@ import { VerifyEmailPage } from '../../pages/auth/VerifyEmailPage';
 import { OnboardingPage } from '../../pages/onboarding/OnboardingPage';
 import { BusinessSettingsPage } from '../../pages/settings/BusinessSettingsPage';
 import { StaffPage } from '../../pages/settings/StaffPage';
+import { ServicesPage } from '../../pages/catalog/ServicesPage';
+import { CustomersPage } from '../../pages/catalog/CustomersPage';
 import { RequireToken } from '../../features/auth/RequireToken';
 import { RequireBusiness } from '../../features/business/RequireBusiness';
 
@@ -53,6 +55,22 @@ const router = createBrowserRouter([
     element: (
       <RequireBusiness>
         <StaffPage />
+      </RequireBusiness>
+    ),
+  },
+  {
+    path: '/catalog/services',
+    element: (
+      <RequireBusiness>
+        <ServicesPage />
+      </RequireBusiness>
+    ),
+  },
+  {
+    path: '/catalog/customers',
+    element: (
+      <RequireBusiness>
+        <CustomersPage />
       </RequireBusiness>
     ),
   },
