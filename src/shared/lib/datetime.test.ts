@@ -3,6 +3,8 @@ import {
   toIsoWithOffset,
   dayRangeIso,
   minutesToHHMM,
+  hhmmToMinutes,
+  halfHourOptions,
   shiftDate,
 } from './datetime';
 
@@ -35,6 +37,36 @@ describe('minutesToHHMM', () => {
     expect(minutesToHHMM(90)).toBe('01:30');
     expect(minutesToHHMM(540)).toBe('09:00');
     expect(minutesToHHMM(1439)).toBe('23:59');
+  });
+});
+
+describe('hhmmToMinutes', () => {
+  it('parses "HH:MM" into minutes-from-midnight', () => {
+    expect(hhmmToMinutes('00:00')).toBe(0);
+    expect(hhmmToMinutes('09:00')).toBe(540);
+    expect(hhmmToMinutes('23:59')).toBe(1439);
+    expect(hhmmToMinutes('24:00')).toBe(1440);
+  });
+
+  it('round-trips with minutesToHHMM', () => {
+    for (const m of [0, 30, 540, 1020, 1440]) {
+      expect(hhmmToMinutes(minutesToHHMM(m))).toBe(m);
+    }
+  });
+
+  it('throws on garbage', () => {
+    expect(() => hhmmToMinutes('nope')).toThrow();
+    expect(() => hhmmToMinutes('25:00')).toThrow();
+  });
+});
+
+describe('halfHourOptions', () => {
+  it('spans 00:00..24:00 in 30-min steps', () => {
+    const opts = halfHourOptions();
+    expect(opts.length).toBe(49);
+    expect(opts[0]).toEqual({ value: '00:00', minute: 0 });
+    expect(opts.at(-1)).toEqual({ value: '24:00', minute: 1440 });
+    expect(opts[1]).toEqual({ value: '00:30', minute: 30 });
   });
 });
 

@@ -67,3 +67,36 @@ export function minutesToHHMM(minutes: number): string {
   const m = minutes % 60;
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
+
+/** "HH:MM" -> minutes-from-midnight. "24:00" is accepted as 1440 (close). */
+export function hhmmToMinutes(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number);
+  if (
+    h === undefined ||
+    m === undefined ||
+    Number.isNaN(h) ||
+    Number.isNaN(m) ||
+    h < 0 ||
+    h > 24 ||
+    m < 0 ||
+    m > 59
+  ) {
+    throw new Error(`Invalid time "${hhmm}"`);
+  }
+  return h * 60 + m;
+}
+
+/**
+ * Half-hour time-of-day options for the hours editor: "00:00" .. "24:00"
+ * (49 entries). Returns `{ value: "HH:MM", minute }` pairs.
+ */
+export function halfHourOptions(): Array<{ value: string; minute: number }> {
+  const out: Array<{ value: string; minute: number }> = [];
+  for (let minute = 0; minute <= 1440; minute += 30) {
+    const h = Math.floor(minute / 60);
+    const m = minute % 60;
+    const value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    out.push({ value, minute });
+  }
+  return out;
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Loader2, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AppShell } from '../../widgets/app-shell/AppShell';
 import { DayCalendar } from '../../features/calendar/DayCalendar';
@@ -78,7 +79,11 @@ export function CalendarPage() {
           <div className="mt-6">
             <Alert tone="error">
               Aún no has configurado el horario de atención. Las citas deben caer
-              dentro del horario del negocio, así que configúralo antes de agendar.
+              dentro del horario del negocio.{' '}
+              <Link to="/settings/hours" className="font-semibold underline">
+                Configúralo aquí
+              </Link>{' '}
+              antes de agendar.
             </Alert>
           </div>
         )}

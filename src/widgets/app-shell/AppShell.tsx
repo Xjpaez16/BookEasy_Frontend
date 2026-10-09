@@ -13,6 +13,7 @@ const navItems = [
   { to: '/catalog/customers', label: 'Clientes' },
   { to: '/settings/staff', label: 'Equipo' },
   { to: '/settings/business', label: 'Negocio' },
+  { to: '/settings/hours', label: 'Horario' },
 ];
 
 /** Pill nav link with an active-route indicator (Rausch tint when current). */
