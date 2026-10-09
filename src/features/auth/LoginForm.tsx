@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { loginInputSchema, type LoginInput } from '../../entities/session/model';
 import { useLogin } from '../../entities/session/api';
 import { Button } from '../../shared/ui/Button';
@@ -8,8 +8,22 @@ import { Input } from '../../shared/ui/Input';
 import { Field, Alert } from '../../shared/ui/Field';
 import { toAuthErrorMessage } from './error-message';
 
+/**
+ * Only allow redirecting back to an INTERNAL path (starts with a single "/").
+ * Rejects "//host" and "/\\" and absolute URLs to prevent open-redirect.
+ */
+function safeReturnTo(raw: string | null): string {
+  if (!raw) return '/dashboard';
+  if (!raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) {
+    return '/dashboard';
+  }
+  return raw;
+}
+
 export function LoginForm() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const returnTo = safeReturnTo(params.get('returnTo'));
   const login = useLogin();
   const {
     register,
@@ -19,7 +33,7 @@ export function LoginForm() {
 
   const onSubmit = handleSubmit((values) => {
     login.mutate(values, {
-      onSuccess: () => navigate('/dashboard', { replace: true }),
+      onSuccess: () => navigate(returnTo, { replace: true }),
     });
   });
 

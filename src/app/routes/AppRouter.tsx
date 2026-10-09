@@ -1,81 +1,145 @@
+import { lazy, Suspense, type ReactNode } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import { DashboardPage } from '../../pages/dashboard/DashboardPage';
-import { LoginPage } from '../../pages/auth/LoginPage';
-import { RegisterPage } from '../../pages/auth/RegisterPage';
-import { ForgotPasswordPage } from '../../pages/auth/ForgotPasswordPage';
-import { ResetPasswordPage } from '../../pages/auth/ResetPasswordPage';
-import { VerifyEmailPage } from '../../pages/auth/VerifyEmailPage';
-import { OnboardingPage } from '../../pages/onboarding/OnboardingPage';
-import { BusinessSettingsPage } from '../../pages/settings/BusinessSettingsPage';
-import { StaffPage } from '../../pages/settings/StaffPage';
-import { ServicesPage } from '../../pages/catalog/ServicesPage';
-import { CustomersPage } from '../../pages/catalog/CustomersPage';
+import { Loader2 } from 'lucide-react';
 import { RequireToken } from '../../features/auth/RequireToken';
 import { RequireBusiness } from '../../features/business/RequireBusiness';
+import { RequireAuthForBooking } from '../../features/storefront/RequireAuthForBooking';
+
+/*
+ * Route-level code splitting. Each page is its own lazy chunk, so the public
+ * marketplace (first paint for most visitors) doesn't ship the owner-only
+ * dashboard code or the motion library until it's actually needed.
+ */
+const MarketplacePage = lazy(() =>
+  import('../../pages/public/MarketplacePage').then((m) => ({ default: m.MarketplacePage })),
+);
+const StorefrontPage = lazy(() =>
+  import('../../pages/public/StorefrontPage').then((m) => ({ default: m.StorefrontPage })),
+);
+const BookingPage = lazy(() =>
+  import('../../pages/public/BookingPage').then((m) => ({ default: m.BookingPage })),
+);
+const LoginPage = lazy(() =>
+  import('../../pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })),
+);
+const RegisterPage = lazy(() =>
+  import('../../pages/auth/RegisterPage').then((m) => ({ default: m.RegisterPage })),
+);
+const ForgotPasswordPage = lazy(() =>
+  import('../../pages/auth/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })),
+);
+const ResetPasswordPage = lazy(() =>
+  import('../../pages/auth/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })),
+);
+const VerifyEmailPage = lazy(() =>
+  import('../../pages/auth/VerifyEmailPage').then((m) => ({ default: m.VerifyEmailPage })),
+);
+const OnboardingPage = lazy(() =>
+  import('../../pages/onboarding/OnboardingPage').then((m) => ({ default: m.OnboardingPage })),
+);
+const DashboardPage = lazy(() =>
+  import('../../pages/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })),
+);
+const BusinessSettingsPage = lazy(() =>
+  import('../../pages/settings/BusinessSettingsPage').then((m) => ({ default: m.BusinessSettingsPage })),
+);
+const StaffPage = lazy(() =>
+  import('../../pages/settings/StaffPage').then((m) => ({ default: m.StaffPage })),
+);
+const ServicesPage = lazy(() =>
+  import('../../pages/catalog/ServicesPage').then((m) => ({ default: m.ServicesPage })),
+);
+const CustomersPage = lazy(() =>
+  import('../../pages/catalog/CustomersPage').then((m) => ({ default: m.CustomersPage })),
+);
+
+/** Full-viewport fallback while a route chunk loads. */
+function PageFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background text-body">
+      <Loader2 className="h-6 w-6 animate-spin" aria-hidden />
+    </div>
+  );
+}
+
+/** Wraps a lazy page element in Suspense. */
+function page(node: ReactNode) {
+  return <Suspense fallback={<PageFallback />}>{node}</Suspense>;
+}
 
 const router = createBrowserRouter([
-  { path: '/', element: <Navigate to="/dashboard" replace /> },
+  // Public marketplace (unauthenticated storefront).
+  { path: '/', element: page(<MarketplacePage />) },
+  { path: '/b/:slug', element: page(<StorefrontPage />) },
+  {
+    path: '/b/:slug/book',
+    element: page(
+      <RequireAuthForBooking>
+        <BookingPage />
+      </RequireAuthForBooking>,
+    ),
+  },
 
   // Public auth routes.
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
-  { path: '/forgot-password', element: <ForgotPasswordPage /> },
-  { path: '/reset-password', element: <ResetPasswordPage /> },
-  { path: '/verify-email', element: <VerifyEmailPage /> },
+  { path: '/login', element: page(<LoginPage />) },
+  { path: '/register', element: page(<RegisterPage />) },
+  { path: '/forgot-password', element: page(<ForgotPasswordPage />) },
+  { path: '/reset-password', element: page(<ResetPasswordPage />) },
+  { path: '/verify-email', element: page(<VerifyEmailPage />) },
 
   // Authenticated but pre-business: create a business.
   {
     path: '/onboarding',
-    element: (
+    element: page(
       <RequireToken>
         <OnboardingPage />
-      </RequireToken>
+      </RequireToken>,
     ),
   },
 
   // Protected app routes — require an active business (which also proves auth).
   {
     path: '/dashboard',
-    element: (
+    element: page(
       <RequireBusiness>
         <DashboardPage />
-      </RequireBusiness>
+      </RequireBusiness>,
     ),
   },
   {
     path: '/settings/business',
-    element: (
+    element: page(
       <RequireBusiness>
         <BusinessSettingsPage />
-      </RequireBusiness>
+      </RequireBusiness>,
     ),
   },
   {
     path: '/settings/staff',
-    element: (
+    element: page(
       <RequireBusiness>
         <StaffPage />
-      </RequireBusiness>
+      </RequireBusiness>,
     ),
   },
   {
     path: '/catalog/services',
-    element: (
+    element: page(
       <RequireBusiness>
         <ServicesPage />
-      </RequireBusiness>
+      </RequireBusiness>,
     ),
   },
   {
     path: '/catalog/customers',
-    element: (
+    element: page(
       <RequireBusiness>
         <CustomersPage />
-      </RequireBusiness>
+      </RequireBusiness>,
     ),
   },
 
-  { path: '*', element: <Navigate to="/dashboard" replace /> },
+  { path: '*', element: <Navigate to="/" replace /> },
 ]);
 
 export function AppRouter() {
