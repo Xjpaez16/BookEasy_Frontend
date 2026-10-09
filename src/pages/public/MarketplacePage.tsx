@@ -58,12 +58,46 @@ export function MarketplacePage() {
             Cargando negocios…
           </div>
         )}
+
+        {/* Error: the request actually failed (network / parse). */}
         {isError && (
           <Alert tone="error">
             No pudimos cargar los negocios. Recarga la página.
           </Alert>
         )}
-        {businesses && <BusinessGrid businesses={filtered} />}
+
+        {/* Loaded OK but the catalog is genuinely empty — NOT an error. */}
+        {!isLoading && !isError && businesses && businesses.length === 0 && (
+          <div className="rounded-md border border-dashed border-border px-4 py-16 text-center">
+            <p className="text-base font-medium text-foreground">
+              Aún no hay negocios disponibles
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Todavía no se ha publicado ningún negocio. Vuelve pronto.
+            </p>
+          </div>
+        )}
+
+        {/* Loaded OK, catalog has businesses, but the search matched none. */}
+        {!isLoading &&
+          !isError &&
+          businesses &&
+          businesses.length > 0 &&
+          filtered.length === 0 && (
+            <div className="rounded-md border border-dashed border-border px-4 py-16 text-center">
+              <p className="text-base font-medium text-foreground">
+                Sin resultados para “{query.trim()}”
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Prueba con otro nombre.
+              </p>
+            </div>
+          )}
+
+        {/* Loaded OK with matches. */}
+        {!isLoading && !isError && filtered.length > 0 && (
+          <BusinessGrid businesses={filtered} />
+        )}
       </section>
     </PublicNav>
   );

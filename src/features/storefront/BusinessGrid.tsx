@@ -42,14 +42,9 @@ function BusinessCard({ business }: { business: PublicBusinessCard }) {
 }
 
 export function BusinessGrid({ businesses }: { businesses: PublicBusinessCard[] }) {
-  if (businesses.length === 0) {
-    return (
-      <p className="rounded-sm border border-dashed border-border px-4 py-12 text-center text-body">
-        Aún no hay negocios con servicios publicados. Vuelve pronto.
-      </p>
-    );
-  }
-
+  // Empty / no-search-results messaging is owned by the page, which can tell
+  // "catalog is empty" apart from "search matched nothing". This grid is only
+  // rendered when there is at least one business to show.
   return (
     <Stagger className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {businesses.map((b) => (
