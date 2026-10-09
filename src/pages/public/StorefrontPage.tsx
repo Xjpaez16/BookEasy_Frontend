@@ -22,6 +22,17 @@ export function StorefrontPage() {
           Todos los negocios
         </Link>
 
+        {storefront && (
+          <div className="mt-2">
+            <Link
+              to={`/b/${slug}/my-appointments`}
+              className="text-sm font-semibold text-primary hover:underline"
+            >
+              Ver mis reservas
+            </Link>
+          </div>
+        )}
+
         {isLoading && (
           <div className="flex items-center justify-center gap-2 py-20 text-base text-body">
             <Loader2 className="h-5 w-5 animate-spin" aria-hidden />

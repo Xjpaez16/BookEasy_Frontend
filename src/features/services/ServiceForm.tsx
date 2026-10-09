@@ -43,7 +43,7 @@ export function ServiceForm({
           name: service.name,
           description: service.description ?? '',
           durationMinutes: service.durationMinutes,
-          price: minorToMajorString(service.priceMinor),
+          price: minorToMajorString(service.priceMinor, service.currency),
           currency: service.currency,
         }
       : {
@@ -51,14 +51,14 @@ export function ServiceForm({
           description: '',
           durationMinutes: 30,
           price: '',
-          currency: 'USD',
+          currency: 'COP',
         },
   });
 
   const onSubmit = handleSubmit((values) => {
     const priceMinor =
       values.price && values.price !== ''
-        ? parseMoneyToMinor(values.price)
+        ? parseMoneyToMinor(values.price, values.currency)
         : 0;
 
     const payload: ServiceWritePayload = {
@@ -141,7 +141,7 @@ export function ServiceForm({
             id="svc-currency"
             type="text"
             maxLength={3}
-            placeholder="USD"
+            placeholder="COP"
             className="uppercase"
             invalid={!!errors.currency}
             {...register('currency')}

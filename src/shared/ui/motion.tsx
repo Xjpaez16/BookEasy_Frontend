@@ -55,16 +55,43 @@ const staggerChild: Variants = {
   },
 };
 
-/** Container whose direct <StaggerItem> children animate in sequence on view. */
+/**
+ * Container whose direct <StaggerItem> children animate in sequence.
+ *
+ * By default it animates once when scrolled into view (`whileInView`). For a
+ * list that RE-RENDERS with different children — e.g. a search-filtered grid —
+ * pass `trigger`: the container then animates with `animate` and re-runs every
+ * time `trigger` changes, so items that reappear after the parent is already
+ * on screen become visible again instead of being stuck at `initial`.
+ */
 export function Stagger({
   children,
   className,
+  trigger,
 }: {
   children: ReactNode;
   className?: string;
+  /** When provided, animate on mount + whenever this value changes. */
+  trigger?: string | number | undefined;
 }) {
   const reduce = useReducedMotion();
   if (reduce) return <div className={className}>{children}</div>;
+
+  if (trigger !== undefined) {
+    return (
+      <motion.div
+        // Remount on change so reappearing children replay from hidden->show.
+        key={String(trigger)}
+        className={className}
+        variants={staggerParent}
+        initial="hidden"
+        animate="show"
+      >
+        {children}
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       className={className}

@@ -42,6 +42,16 @@ describe('parseMoneyToMinor', () => {
     expect(parseMoneyToMinor('abc')).toBeNull();
     expect(parseMoneyToMinor('')).toBeNull();
   });
+
+  it('treats a zero-decimal currency (COP) as 1 minor unit = 1 peso', () => {
+    // 25.000 COP -> 25000 minor (NOT 2.500.000). No fractional unit.
+    expect(parseMoneyToMinor('25000', 'COP')).toBe(25000);
+    expect(parseMoneyToMinor('1200', 'COP')).toBe(1200);
+  });
+
+  it('rejects decimals for a zero-decimal currency (COP)', () => {
+    expect(parseMoneyToMinor('25000.50', 'COP')).toBeNull();
+  });
 });
 
 describe('minorToMajorString', () => {
@@ -69,6 +79,19 @@ describe('formatMoney', () => {
     const out = formatMoney(12345, 'ZZZ');
     expect(out).toContain('123.45');
     expect(out).toContain('ZZZ');
+  });
+
+  it('formats a zero-decimal currency (COP) with no cents', () => {
+    const out = formatMoney(25000, 'COP');
+    // 25000 minor = 25.000 COP; must NOT render as 250.00.
+    expect(out).toMatch(/25[.,]?000/);
+    expect(out).not.toMatch(/250[.,]00/);
+  });
+
+  it('round-trips COP through parse + format helpers', () => {
+    for (const minor of [0, 1200, 25000, 150000]) {
+      expect(parseMoneyToMinor(minorToMajorString(minor, 'COP'), 'COP')).toBe(minor);
+    }
   });
 });
 

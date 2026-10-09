@@ -96,7 +96,7 @@ export function MarketplacePage() {
 
         {/* Loaded OK with matches. */}
         {!isLoading && !isError && filtered.length > 0 && (
-          <BusinessGrid businesses={filtered} />
+          <BusinessGrid businesses={filtered} trigger={query.trim().toLowerCase()} />
         )}
       </section>
     </PublicNav>

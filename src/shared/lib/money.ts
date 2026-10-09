@@ -1,40 +1,58 @@
 /*
  * Money helpers. The backend stores and returns money as integer MINOR units
- * (e.g. cents) plus an ISO-4217 currency code — never a float. The UI edits a
- * major-unit decimal string for humans, so these convert between the two
- * without ever doing float arithmetic on the stored value.
+ * plus an ISO-4217 currency code — never a float. The number of minor units
+ * per major unit depends on the CURRENCY: most are 2 (USD cents), but several
+ * are 0 (COP, CLP, JPY have no fractional unit). Hardcoding /100 misprices
+ * those, so every conversion goes through `currencyExponent`.
  */
 
-/** Format minor units + currency for display, e.g. (12345, 'USD') -> "$123.45". */
+/** ISO-4217 minor-unit exponent for the currencies we support. Default 2. */
+const ZERO_DECIMAL = new Set(['COP', 'CLP', 'JPY', 'KRW', 'VND', 'PYG', 'ISK']);
+export function currencyExponent(currency: string): number {
+  return ZERO_DECIMAL.has(currency.toUpperCase()) ? 0 : 2;
+}
+
+/** Minor units -> major amount, honoring the currency's decimal places. */
+function minorToMajor(minor: number, currency: string): number {
+  return minor / 10 ** currencyExponent(currency);
+}
+
+/**
+ * Format minor units + currency for display.
+ *   (25000, 'COP') -> "$ 25.000"   (2500000, 'USD') -> "$25,000.00"
+ */
 export function formatMoney(minor: number, currency: string): string {
+  const code = currency.toUpperCase();
   try {
     return new Intl.NumberFormat(undefined, {
       style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(minor / 100);
+      currency: code,
+    }).format(minorToMajor(minor, code));
   } catch {
-    // Unknown currency code — fall back to a plain 2-decimal rendering.
-    return `${(minor / 100).toFixed(2)} ${currency.toUpperCase()}`;
+    const frac = currencyExponent(code);
+    return `${minorToMajor(minor, code).toFixed(frac)} ${code}`;
   }
 }
 
 /**
- * Parse a human major-unit string ("123.45", "123,45", "1 200.00") into integer
- * minor units. Returns null when the input is not a valid non-negative amount.
- * Rounds to the nearest minor unit to avoid float drift from the parse.
+ * Parse a human major-unit string into integer minor units for a currency.
+ * Allows as many decimals as the currency defines (0 for COP, 2 for USD).
+ * Returns null when the input is not a valid non-negative amount.
  */
-export function parseMoneyToMinor(input: string): number | null {
+export function parseMoneyToMinor(input: string, currency = 'USD'): number | null {
+  const frac = currencyExponent(currency);
   const normalized = input.trim().replace(/\s/g, '').replace(',', '.');
   if (normalized === '') return null;
-  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) return null;
+  const re = frac === 0 ? /^\d+$/ : new RegExp(`^\\d+(\\.\\d{1,${frac}})?$`);
+  if (!re.test(normalized)) return null;
   const value = Number(normalized);
   if (!Number.isFinite(value) || value < 0) return null;
-  return Math.round(value * 100);
+  return Math.round(value * 10 ** frac);
 }
 
-/** Render minor units as an editable major-unit string, e.g. 12345 -> "123.45". */
-export function minorToMajorString(minor: number): string {
-  return (minor / 100).toFixed(2);
+/** Render minor units as an editable major-unit string for the currency. */
+export function minorToMajorString(minor: number, currency = 'USD'): string {
+  return minorToMajor(minor, currency).toFixed(currencyExponent(currency));
 }
 
 /** Format a duration in minutes as a short human label, e.g. 90 -> "1 h 30 min". */

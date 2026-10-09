@@ -19,6 +19,9 @@ const StorefrontPage = lazy(() =>
 const BookingPage = lazy(() =>
   import('../../pages/public/BookingPage').then((m) => ({ default: m.BookingPage })),
 );
+const MyAppointmentsPage = lazy(() =>
+  import('../../pages/public/MyAppointmentsPage').then((m) => ({ default: m.MyAppointmentsPage })),
+);
 const LoginPage = lazy(() =>
   import('../../pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })),
 );
@@ -82,6 +85,14 @@ const router = createBrowserRouter([
     element: page(
       <RequireAuthForBooking>
         <BookingPage />
+      </RequireAuthForBooking>,
+    ),
+  },
+  {
+    path: '/b/:slug/my-appointments',
+    element: page(
+      <RequireAuthForBooking>
+        <MyAppointmentsPage />
       </RequireAuthForBooking>,
     ),
   },
