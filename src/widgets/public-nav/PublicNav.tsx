@@ -10,7 +10,7 @@ import { CalendarCheck } from 'lucide-react';
 export function PublicNav({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 flex h-20 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur sm:px-8">
+      <header className="sticky top-0 z-10 flex h-20 items-center justify-between bg-background/80 px-4 shadow-nav backdrop-blur sm:px-8">
         <Link to="/" className="inline-flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <CalendarCheck className="h-4 w-4" aria-hidden />

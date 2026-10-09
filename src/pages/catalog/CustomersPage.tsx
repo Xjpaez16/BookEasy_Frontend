@@ -26,7 +26,7 @@ export function CustomersPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-page">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-[22px] font-semibold tracking-tight">Clientes</h1>
@@ -43,7 +43,7 @@ export function CustomersPage() {
         </div>
 
         {showForm && (
-          <section className="mt-6 rounded-md border border-border p-5">
+          <section className="mt-6 rounded-md border border-border-soft p-6">
             <h2 className="mb-4 text-base font-semibold">
               {editing ? 'Editar cliente' : 'Nuevo cliente'}
             </h2>

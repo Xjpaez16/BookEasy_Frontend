@@ -9,7 +9,7 @@ export function BusinessSettingsPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-xl">
+      <div className="mx-auto max-w-page">
         <h1 className="text-[22px] font-semibold tracking-tight">
           Datos del negocio
         </h1>

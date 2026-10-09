@@ -17,14 +17,14 @@ export function StaffPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-page">
         <h1 className="text-[22px] font-semibold tracking-tight">Equipo</h1>
         <p className="mt-2 text-base text-body">
           Gestiona quién puede acceder y atender citas en tu negocio.
         </p>
 
         {canManage && (
-          <section className="mt-6 rounded-md border border-border p-5">
+          <section className="mt-6 rounded-md border border-border-soft p-6">
             <h2 className="text-base font-semibold">Añadir miembro</h2>
             <p className="mb-4 mt-1 text-sm text-muted-foreground">
               Si la persona no tiene cuenta, se crea una provisional y completará

@@ -17,7 +17,7 @@ function ServiceRow({
 
   return (
     <>
-      <tr className="border-b border-border last:border-0">
+      <tr className="border-b border-border-soft last:border-0">
         <td className="py-3 pr-4">
           <span className="font-medium text-foreground">{service.name}</span>
           {service.description && (
@@ -79,7 +79,7 @@ export function ServiceList({
   return (
     <table className="w-full border-collapse text-left text-base">
       <thead>
-        <tr className="border-b border-border text-sm text-muted-foreground">
+        <tr className="border-b border-border-soft text-sm text-muted-foreground">
           <th className="py-2 pr-4 font-medium">Servicio</th>
           <th className="py-2 pr-4 font-medium">Duración</th>
           <th className="py-2 pr-4 font-medium">Precio</th>

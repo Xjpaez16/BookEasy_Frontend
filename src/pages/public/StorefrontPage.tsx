@@ -4,6 +4,7 @@ import { PublicNav } from '../../widgets/public-nav/PublicNav';
 import { ServiceMenu } from '../../features/storefront/ServiceMenu';
 import { usePublicStorefront } from '../../entities/public-catalog/api';
 import { Reveal } from '../../shared/ui/motion';
+import { SoftDivider } from '../../shared/ui/SoftDivider';
 import { Alert } from '../../shared/ui/Field';
 
 export function StorefrontPage() {
@@ -39,7 +40,7 @@ export function StorefrontPage() {
         {storefront && (
           <>
             <Reveal>
-              <header className="mt-6 border-b border-border pb-8">
+              <header className="mt-6 pb-8">
                 <h1 className="text-3xl font-semibold tracking-tight">
                   {storefront.name}
                 </h1>
@@ -49,6 +50,7 @@ export function StorefrontPage() {
                 </p>
               </header>
             </Reveal>
+            <SoftDivider />
 
             <section className="mt-8">
               <h2 className="mb-4 text-lg font-semibold">Servicios</h2>
