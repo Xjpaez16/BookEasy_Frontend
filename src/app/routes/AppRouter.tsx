@@ -43,6 +43,9 @@ const DashboardPage = lazy(() =>
 const BusinessSettingsPage = lazy(() =>
   import('../../pages/settings/BusinessSettingsPage').then((m) => ({ default: m.BusinessSettingsPage })),
 );
+const BusinessHoursPage = lazy(() =>
+  import('../../pages/settings/BusinessHoursPage').then((m) => ({ default: m.BusinessHoursPage })),
+);
 const StaffPage = lazy(() =>
   import('../../pages/settings/StaffPage').then((m) => ({ default: m.StaffPage })),
 );
@@ -122,6 +125,14 @@ const router = createBrowserRouter([
     element: page(
       <RequireBusiness>
         <BusinessSettingsPage />
+      </RequireBusiness>,
+    ),
+  },
+  {
+    path: '/settings/hours',
+    element: page(
+      <RequireBusiness>
+        <BusinessHoursPage />
       </RequireBusiness>,
     ),
   },
