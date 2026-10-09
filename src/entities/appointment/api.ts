@@ -1,46 +1,103 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../shared/api/client';
 import {
+  appointmentListSchema,
   appointmentSchema,
   type Appointment,
-  type CreateAppointmentInput,
 } from './model';
-import { z } from 'zod';
 
-const appointmentListSchema = z.array(appointmentSchema);
+/** Payload for POST /appointments. startAt is ISO-8601 with offset. */
+export interface CreateAppointmentPayload {
+  customerId: string;
+  serviceId: string;
+  staffId: string;
+  startAt: string;
+  notes?: string | null;
+}
 
-/** Resource access for appointments. The only place that knows the URL shape. */
+/** The only place that knows the appointments URL shapes (/api/v1/appointments). */
 const appointmentsApi = {
-  list: async (params: { from: string; to: string }): Promise<Appointment[]> => {
-    const raw = await apiClient.get<unknown>(
-      `/appointments?from=${encodeURIComponent(params.from)}&to=${encodeURIComponent(params.to)}`,
-    );
+  list: async (range: {
+    from: string;
+    to: string;
+    staffId?: string;
+  }): Promise<Appointment[]> => {
+    const params = new URLSearchParams({ from: range.from, to: range.to });
+    if (range.staffId) params.set('staffId', range.staffId);
+    const raw = await apiClient.get<unknown>(`/appointments?${params.toString()}`);
     return appointmentListSchema.parse(raw);
   },
-  create: async (input: CreateAppointmentInput): Promise<Appointment> => {
-    const raw = await apiClient.post<unknown>('/appointments', input);
+  create: async (payload: CreateAppointmentPayload): Promise<Appointment> => {
+    const raw = await apiClient.post<unknown>('/appointments', payload);
+    return appointmentSchema.parse(raw);
+  },
+  reschedule: async (args: {
+    id: string;
+    startAt: string;
+  }): Promise<Appointment> => {
+    const raw = await apiClient.patch<unknown>(
+      `/appointments/${args.id}/reschedule`,
+      { startAt: args.startAt },
+    );
+    return appointmentSchema.parse(raw);
+  },
+  transition: async (args: {
+    id: string;
+    action: 'cancel' | 'complete' | 'no-show';
+  }): Promise<Appointment> => {
+    const raw = await apiClient.post<unknown>(
+      `/appointments/${args.id}/${args.action}`,
+    );
     return appointmentSchema.parse(raw);
   },
 };
 
-const keys = {
+export const appointmentKeys = {
   all: ['appointments'] as const,
-  range: (from: string, to: string) => [...keys.all, { from, to }] as const,
+  range: (from: string, to: string, staffId?: string) =>
+    ['appointments', 'range', from, to, staffId ?? 'all'] as const,
 };
 
-export function useAppointments(from: string, to: string) {
+/** Lists appointments in a date range (tenant-scoped by X-Business-Id). */
+export function useAppointments(range: {
+  from: string;
+  to: string;
+  staffId?: string;
+}) {
   return useQuery({
-    queryKey: keys.range(from, to),
-    queryFn: () => appointmentsApi.list({ from, to }),
+    queryKey: appointmentKeys.range(range.from, range.to, range.staffId),
+    queryFn: () => appointmentsApi.list(range),
+    staleTime: 30_000,
+    enabled: range.from.length > 0 && range.to.length > 0,
   });
 }
 
 export function useCreateAppointment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateAppointmentInput) => appointmentsApi.create(input),
+    mutationFn: appointmentsApi.create,
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: keys.all });
+      void qc.invalidateQueries({ queryKey: appointmentKeys.all });
+    },
+  });
+}
+
+export function useRescheduleAppointment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: appointmentsApi.reschedule,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: appointmentKeys.all });
+    },
+  });
+}
+
+export function useTransitionAppointment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: appointmentsApi.transition,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: appointmentKeys.all });
     },
   });
 }

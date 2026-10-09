@@ -52,6 +52,9 @@ const ServicesPage = lazy(() =>
 const CustomersPage = lazy(() =>
   import('../../pages/catalog/CustomersPage').then((m) => ({ default: m.CustomersPage })),
 );
+const CalendarPage = lazy(() =>
+  import('../../pages/calendar/CalendarPage').then((m) => ({ default: m.CalendarPage })),
+);
 
 /** Full-viewport fallback while a route chunk loads. */
 function PageFallback() {
@@ -103,6 +106,14 @@ const router = createBrowserRouter([
     element: page(
       <RequireBusiness>
         <DashboardPage />
+      </RequireBusiness>,
+    ),
+  },
+  {
+    path: '/calendar',
+    element: page(
+      <RequireBusiness>
+        <CalendarPage />
       </RequireBusiness>,
     ),
   },

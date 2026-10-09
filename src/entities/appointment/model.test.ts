@@ -1,30 +1,81 @@
 import { describe, it, expect } from 'vitest';
-import { appointmentSchema, createAppointmentSchema } from './model';
+import {
+  appointmentSchema,
+  appointmentListSchema,
+  appointmentFormSchema,
+  statusLabel,
+} from './model';
 
-describe('appointment schemas', () => {
-  it('accepts a valid appointment', () => {
-    const result = appointmentSchema.safeParse({
-      id: '11111111-1111-1111-1111-111111111111',
-      customerId: '22222222-2222-2222-2222-222222222222',
-      serviceId: '33333333-3333-3333-3333-333333333333',
-      staffId: '44444444-4444-4444-4444-444444444444',
-      startAt: '2026-01-01T10:00:00.000Z',
-      endAt: '2026-01-01T10:30:00.000Z',
+const uuid = '11111111-1111-1111-1111-111111111111';
+
+describe('appointment schema', () => {
+  it('parses a valid appointment', () => {
+    const r = appointmentSchema.safeParse({
+      id: uuid,
+      customerId: uuid,
+      serviceId: uuid,
+      staffId: uuid,
+      startAt: '2026-10-09T14:00:00.000Z',
+      endAt: '2026-10-09T14:45:00.000Z',
       status: 'SCHEDULED',
-      priceMinor: 1500,
+      priceMinor: 2500,
       currency: 'USD',
       notes: null,
     });
-    expect(result.success).toBe(true);
+    expect(r.success).toBe(true);
   });
 
-  it('rejects a negative price', () => {
-    const result = createAppointmentSchema.safeParse({
-      customerId: 'not-a-uuid',
-      serviceId: '33333333-3333-3333-3333-333333333333',
-      staffId: '44444444-4444-4444-4444-444444444444',
-      startAt: '2026-01-01T10:00:00.000Z',
+  it('rejects an unknown status', () => {
+    const r = appointmentSchema.safeParse({
+      id: uuid,
+      customerId: uuid,
+      serviceId: uuid,
+      staffId: uuid,
+      startAt: '2026-10-09T14:00:00.000Z',
+      endAt: '2026-10-09T14:45:00.000Z',
+      status: 'PENDING',
+      priceMinor: 2500,
+      currency: 'USD',
+      notes: null,
     });
-    expect(result.success).toBe(false);
+    expect(r.success).toBe(false);
+  });
+
+  it('parses an empty list', () => {
+    expect(appointmentListSchema.safeParse([]).success).toBe(true);
+  });
+
+  it('has a Spanish label for every status', () => {
+    expect(statusLabel.SCHEDULED).toBe('Agendada');
+    expect(statusLabel.COMPLETED).toBe('Completada');
+    expect(statusLabel.CANCELLED).toBe('Cancelada');
+    expect(statusLabel.NO_SHOW).toBe('No asistió');
+  });
+});
+
+describe('appointment form schema', () => {
+  const base = {
+    customerId: uuid,
+    serviceId: uuid,
+    staffId: uuid,
+    date: '2026-10-09',
+    time: '09:30',
+    notes: '',
+  };
+
+  it('accepts a valid form', () => {
+    expect(appointmentFormSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('rejects a missing customer', () => {
+    expect(
+      appointmentFormSchema.safeParse({ ...base, customerId: 'nope' }).success,
+    ).toBe(false);
+  });
+
+  it('rejects a malformed time', () => {
+    expect(appointmentFormSchema.safeParse({ ...base, time: '9am' }).success).toBe(
+      false,
+    );
   });
 });
