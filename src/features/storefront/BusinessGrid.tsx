@@ -41,12 +41,23 @@ function BusinessCard({ business }: { business: PublicBusinessCard }) {
   );
 }
 
-export function BusinessGrid({ businesses }: { businesses: PublicBusinessCard[] }) {
+export function BusinessGrid({
+  businesses,
+  trigger,
+}: {
+  businesses: PublicBusinessCard[];
+  /** Changes when the shown set changes (e.g. the search query), so the
+   *  stagger re-animates reappearing cards to visible. */
+  trigger?: string | number | undefined;
+}) {
   // Empty / no-search-results messaging is owned by the page, which can tell
   // "catalog is empty" apart from "search matched nothing". This grid is only
   // rendered when there is at least one business to show.
   return (
-    <Stagger className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <Stagger
+      trigger={trigger}
+      className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+    >
       {businesses.map((b) => (
         <StaggerItem key={b.slug}>
           <BusinessCard business={b} />
