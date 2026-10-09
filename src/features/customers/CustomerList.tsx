@@ -16,7 +16,7 @@ function CustomerRow({
 
   return (
     <>
-      <tr className="border-b border-border last:border-0">
+      <tr className="border-b border-border-soft last:border-0">
         <td className="py-3 pr-4">
           <span className="font-medium text-foreground">{customer.fullName}</span>
           {customer.notes && (
@@ -78,7 +78,7 @@ export function CustomerList({
   return (
     <table className="w-full border-collapse text-left text-base">
       <thead>
-        <tr className="border-b border-border text-sm text-muted-foreground">
+        <tr className="border-b border-border-soft text-sm text-muted-foreground">
           <th className="py-2 pr-4 font-medium">Cliente</th>
           <th className="py-2 pr-4 font-medium">Teléfono</th>
           <th className="py-2 pr-4 font-medium">Correo</th>

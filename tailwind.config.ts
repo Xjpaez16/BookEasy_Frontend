@@ -49,9 +49,21 @@ export default {
         // The system's single elevation tier (card hover / dropdowns / search bar).
         float:
           'rgba(0,0,0,0.02) 0 0 0 1px, rgba(0,0,0,0.04) 0 2px 6px 0, rgba(0,0,0,0.1) 0 4px 8px 0',
+        // Sticky-header elevation — replaces the hard border-b hairline with a
+        // soft 1px edge + a faint drop so sections separate without a visible line.
+        nav: '0 1px 0 rgba(0,0,0,0.04), 0 8px 24px -16px rgba(0,0,0,0.18)',
+      },
+      backgroundImage: {
+        // Warm brand wash for public hero sections — a very tender Rausch tint
+        // fading to canvas, so the storefront feels alive (Fresha-like) without
+        // a hard divider.
+        'brand-wash':
+          'linear-gradient(180deg, hsl(347 100% 97%) 0%, hsl(0 0% 100%) 100%)',
       },
       maxWidth: {
         content: '1280px',
+        // One narrow column for forms/settings so every inner page lines up.
+        page: '768px',
       },
     },
   },

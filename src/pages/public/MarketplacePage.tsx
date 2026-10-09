@@ -21,7 +21,7 @@ export function MarketplacePage() {
   return (
     <PublicNav>
       {/* Hero */}
-      <section className="border-b border-border bg-surface-soft/40">
+      <section className="bg-brand-wash">
         <div className="mx-auto max-w-content px-4 py-16 text-center sm:px-8 sm:py-20">
           <Reveal>
             <h1 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
